@@ -1,0 +1,27 @@
+[project]
+name = "langchain-agent-tools"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Ganesh Pokharel", email = "246271712+GaneshPokharel-tech@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "joblib>=1.6.0",
+    "langchain>=1.4.2",
+    "langchain-google-genai>=4.4.0",
+    "langgraph>=1.2.12",
+    "numexpr>=2.14.2",
+    "pandas>=3.0.6",
+    "python-dotenv>=1.2.3",
+    "scikit-learn>=1.9.1",
+    "seaborn>=0.13.2",
+]
+
+[project.scripts]
+langchain-agent-tools = "langchain_agent_tools:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"

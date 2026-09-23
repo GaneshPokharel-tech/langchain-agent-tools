@@ -1,0 +1,23 @@
+# Environment variables
+.env
+
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Temporary / generated notes
+notes/*.txt
+
+# Test note created by agent
+agent_test.txt
