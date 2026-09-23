@@ -25,6 +25,7 @@ Performs mathematical calculations.
 Predicts Titanic passenger fare using a trained Linear Regression model.
 
 Required inputs:
+
 - Passenger class
 - Sex
 - Age
@@ -33,6 +34,7 @@ Required inputs:
 
 ### 3. Distance Converter
 Converts:
+
 - Kilometers to miles
 - Miles to kilometers
 
@@ -41,9 +43,12 @@ Counts the number of words in a given text.
 
 ### 5. Note Manager
 Can:
+
 - Save notes
 - Read notes
 - Append text to notes
+
+---
 
 ## Project Structure
 
@@ -66,18 +71,27 @@ langchain-agent-tools/
 ├── README.md
 ├── pyproject.toml
 └── uv.lock
-LangChain Agent
+```
 
-The LangChain version is located in:
+---
 
+## LangChain Agent
+
+The LangChain version is implemented in:
+
+```text
 main.py
+```
 
 Run it with:
 
+```bash
 uv run main.py
+```
 
-Flow:
+### LangChain Flow
 
+```text
 User
   ↓
 LangChain Agent
@@ -89,18 +103,29 @@ Tool Selection
 Tool Execution
   ↓
 Final Answer
-LangGraph Agent
+```
 
-The LangGraph version is located in:
+The LangChain agent automatically decides which tool to use based on the user's request.
 
+---
+
+## LangGraph Agent
+
+The LangGraph version is implemented in:
+
+```text
 langgraph_main.py
+```
 
 Run it with:
 
+```bash
 uv run langgraph_main.py
+```
 
-Graph flow:
+### LangGraph Flow
 
+```text
 START
   ↓
 Assistant Node
@@ -114,106 +139,207 @@ Tool Needed?
    Assistant Node
       ↓
      END
+```
 
-The LangGraph version explicitly uses:
+The LangGraph implementation uses:
 
-StateGraph
-MessagesState
-Assistant Node
-ToolNode
-Conditional Edges
-Tool Routing
-Setup
+- `StateGraph`
+- `MessagesState`
+- Assistant Node
+- `ToolNode`
+- Conditional Edges
+- Tool Routing
+- Conversation State
+
+---
+
+## Setup
 
 Install project dependencies:
 
+```bash
 uv sync
+```
 
-Create a .env file in the project folder:
+Create a `.env` file in the project directory:
 
+```env
 GOOGLE_API_KEY=your_google_api_key
+```
 
-Do not upload the .env file to GitHub.
+The `.env` file is ignored by Git and should never be uploaded to GitHub.
 
-Titanic Fare Model
+---
 
-The Titanic tool uses a Linear Regression model trained on Titanic passenger data.
+## Titanic Fare Model
 
-The model uses these features:
+The Titanic fare prediction tool uses a Linear Regression model trained on Titanic passenger data.
 
-Pclass
-Sex
-Age
-Embarked
-FamilySize
-IsAlone
+### Input Features
 
-The model predicts passenger fare.
+- `Pclass`
+- `Sex`
+- `Age`
+- `Embarked`
+- `FamilySize`
+- `IsAlone`
 
 The trained model is stored in:
 
+```text
 titanic_fare_regression_model.joblib
-Interactive Commands
+```
 
-Inside the agent:
+The model is loaded and used by:
 
+```text
+titanic_tool.py
+```
+
+---
+
+## Interactive Commands
+
+### Show Available Tools
+
+```text
 tools
+```
 
-Shows all available tools.
+Displays all five available tools.
 
+### Clear Conversation
+
+```text
 clear
+```
 
-Clears the current conversation memory.
+Clears the current conversation context.
 
+### Exit
+
+```text
 exit
+```
 
 Closes the program.
 
-Example
+---
 
-User:
+## Example: Calculator
 
+User input:
+
+```text
 Calculate 50 + 34 / 45
+```
 
 Agent selects:
 
+```text
 calculator
+```
 
 Tool result:
 
+```text
 50.75555555555555
+```
 
 Final response:
 
+```text
 The result is approximately 50.76.
+```
 
-Titanic example:
+---
 
+## Example: Titanic Fare Prediction
+
+User input:
+
+```text
 Predict Titanic fare for class 2, male, age 25,
 embarked S, family size 1.
+```
 
-The agent automatically selects:
+Agent selects:
 
+```text
 titanic_fare_predictor
+```
 
-and returns the predicted fare.
+Example execution:
 
-Technologies Used
-Python
-LangChain
-LangGraph
-Google Gemini
-pandas
-scikit-learn
-joblib
-python-dotenv
-numexpr
-uv
-Purpose
+```text
+[Tool] titanic_fare_predictor
+[Input] pclass=2, sex='male', age=25, embarked='S', family_size=1
+[Result] Predicted Titanic fare: 11.35
+```
 
-The purpose of this project is to demonstrate how an LLM can interact with external tools instead of relying only on its own generated responses.
+Final response:
 
-The project also demonstrates the difference between:
+```text
+The predicted Titanic fare is $11.35.
+```
 
-LangChain agent-based tool calling
-LangGraph graph-based tool routing and execution
+---
+
+## Missing Information Handling
+
+If the user asks:
+
+```text
+What is the Titanic fare?
+```
+
+The agent does not invent missing values.
+
+Instead, it asks for:
+
+- Passenger class
+- Sex
+- Age
+- Embarkation port
+- Family size
+
+After the user provides the missing information, the agent calls the Titanic fare prediction tool.
+
+---
+
+## Technologies Used
+
+- Python
+- LangChain
+- LangGraph
+- Google Gemini
+- pandas
+- scikit-learn
+- joblib
+- python-dotenv
+- numexpr
+- uv
+
+---
+
+## Project Purpose
+
+This project demonstrates how an LLM can interact with external tools instead of relying only on generated responses.
+
+It also compares two approaches to tool-calling agents.
+
+### LangChain
+
+LangChain provides a higher-level agent abstraction that automatically manages tool selection and execution.
+
+### LangGraph
+
+LangGraph provides explicit control over the workflow using:
+
+- State
+- Nodes
+- Edges
+- Conditional routing
+- Tool execution
+
+This makes the agent workflow easier to visualize, control, and extend.
