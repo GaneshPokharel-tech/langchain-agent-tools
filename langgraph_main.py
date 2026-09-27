@@ -6,6 +6,7 @@ from langchain_core.messages import (
     HumanMessage,
     SystemMessage,
 )
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from langgraph.graph import (
@@ -13,6 +14,7 @@ from langgraph.graph import (
     MessagesState,
     START,
 )
+
 from langgraph.prebuilt import (
     ToolNode,
     tools_condition,
@@ -132,6 +134,7 @@ tools = [
 
 
 # Bind tools to Gemini
+
 llm_with_tools = llm.bind_tools(
     tools
 )
@@ -164,7 +167,7 @@ tool_node = ToolNode(
 
 
 # =========================================================
-# Build Graph
+# Build Runtime Graph
 # =========================================================
 
 builder = StateGraph(
@@ -185,6 +188,7 @@ builder.add_node(
 
 
 # START -> Assistant
+
 builder.add_edge(
     START,
     "assistant",
@@ -195,6 +199,7 @@ builder.add_edge(
 #
 # tool needed -> tools
 # no tool      -> END
+
 builder.add_conditional_edges(
     "assistant",
     tools_condition,
@@ -202,14 +207,166 @@ builder.add_conditional_edges(
 
 
 # Tool execution -> Assistant again
+
 builder.add_edge(
     "tools",
     "assistant",
 )
 
 
-# Compile graph
+# Compile runtime graph
+
 graph = builder.compile()
+
+
+# =========================================================
+# Graph Visualization
+# =========================================================
+
+def visual_node(state):
+    return {}
+
+
+def validate_route(state):
+    return "analyze_task"
+
+
+def tool_route(state):
+    return "calculator"
+
+
+display_builder = StateGraph(
+    MessagesState
+)
+
+
+# ---------------------------------------------------------
+# Visualization Nodes
+# ---------------------------------------------------------
+
+display_builder.add_node(
+    "validate_input",
+    visual_node,
+)
+
+display_builder.add_node(
+    "analyze_task",
+    visual_node,
+)
+
+display_builder.add_node(
+    "calculator",
+    visual_node,
+)
+
+display_builder.add_node(
+    "titanic_fare_predictor",
+    visual_node,
+)
+
+display_builder.add_node(
+    "distance_converter",
+    visual_node,
+)
+
+display_builder.add_node(
+    "word_counter",
+    visual_node,
+)
+
+display_builder.add_node(
+    "note_manager",
+    visual_node,
+)
+
+display_builder.add_node(
+    "format_result",
+    visual_node,
+)
+
+
+# ---------------------------------------------------------
+# START -> Validate Input
+# ---------------------------------------------------------
+
+display_builder.add_edge(
+    START,
+    "validate_input",
+)
+
+
+# ---------------------------------------------------------
+# Validate Input -> Analyze Task
+# ---------------------------------------------------------
+
+display_builder.add_conditional_edges(
+    "validate_input",
+    validate_route,
+    {
+        "analyze_task": "analyze_task",
+    },
+)
+
+
+# ---------------------------------------------------------
+# Analyze Task -> Tool
+# ---------------------------------------------------------
+
+display_builder.add_conditional_edges(
+    "analyze_task",
+    tool_route,
+    {
+        "calculator": "calculator",
+        "titanic_fare_predictor": "titanic_fare_predictor",
+        "distance_converter": "distance_converter",
+        "word_counter": "word_counter",
+        "note_manager": "note_manager",
+    },
+)
+
+
+# ---------------------------------------------------------
+# Tools -> Format Result
+# ---------------------------------------------------------
+
+display_builder.add_edge(
+    "calculator",
+    "format_result",
+)
+
+display_builder.add_edge(
+    "titanic_fare_predictor",
+    "format_result",
+)
+
+display_builder.add_edge(
+    "distance_converter",
+    "format_result",
+)
+
+display_builder.add_edge(
+    "word_counter",
+    "format_result",
+)
+
+display_builder.add_edge(
+    "note_manager",
+    "format_result",
+)
+
+
+# ---------------------------------------------------------
+# Format Result -> END
+# ---------------------------------------------------------
+
+display_builder.set_finish_point(
+    "format_result"
+)
+
+
+# Compile visualization graph
+
+display_graph = display_builder.compile()
 
 
 # =========================================================
@@ -371,18 +528,15 @@ def main():
         f"Tools: {len(tools)}"
     )
 
-    print(
-        "\nGraph Flow:"
-        "\n  START"
-        "\n    ↓"
-        "\n  Assistant"
-        "\n    ↓"
-        "\n  Tool needed?"
-        "\n   ├─ No  → END"
-        "\n   └─ Yes → Tools"
-        "\n              ↓"
-        "\n           Assistant"
-    )
+
+    # =====================================================
+    # Display Graph
+    # =====================================================
+
+    print("\nGraph Flow:")
+
+    display_graph.get_graph().print_ascii()
+
 
     print(
         "\nCommands:"
@@ -502,6 +656,7 @@ def main():
 
             # Only messages created
             # during current graph execution
+
             new_messages = (
                 updated_messages[
                     previous_count:
